@@ -1,4 +1,4 @@
-import { getPost } from './_posts.js';
+import { getPost, getPrevNext } from './_posts.js';
 
 const lookup = new Map();
 
@@ -7,7 +7,7 @@ export function get(req, res, next) {
 
 	if (process.env.NODE_ENV !== 'production' || !lookup.has(slug)) {
 		const post = getPost(slug);
-		lookup.set(slug, JSON.stringify(post));
+		lookup.set(slug, JSON.stringify({...getPrevNext(slug), ...post}));
 	}
 
 	const json = lookup.get(slug);

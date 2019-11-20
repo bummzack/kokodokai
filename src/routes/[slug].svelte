@@ -25,8 +25,18 @@
 
 
 <section class='content'>
-	<h1>{post.metadata.title}</h1>
-	{@html post.html}
+	<Title title={post.metadata.title}></Title>
+	<div class="content__body" out:send="{{key: 'content__body'}}" in:receive="{{key: 'content__body'}}">
+		{@html post.html}
+	</div>
+	<nav class="navigation">
+		{#if post.prev }
+			<a rel='prefetch' href='{post.prev.slug}'>PREV: {post.prev.title}</a>
+		{/if}
+		{#if post.next }
+			<a rel='prefetch' href='{post.next.slug}'>NEXT: {post.next.title}</a>
+		{/if}
+	</nav>
 </section>
 
 <style>
@@ -45,6 +55,10 @@
 		font-size: .875em;
 		font-style: italic;
 		padding: 0 1em;
+	}
+
+	.navigation {
+		color: red;
 	}
 
 	.content {
@@ -91,6 +105,9 @@
 </style>
 
 <script>
+	import {send, receive} from '../_helpers/crossfade.js';
+
+	import Title from '../components/Title.svelte';
 	export let post;
 </script>
 

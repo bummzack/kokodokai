@@ -12,6 +12,24 @@ export function getPosts () {
 	});
 }
 
+export function getPrevNext(slug) {
+	const posts = getPosts();
+	let prev = null, next = null, idx = posts.findIndex(post => post.slug === slug);
+	prev = idx > 0 ? {
+		slug: posts[idx - 1].slug,
+		title: posts[idx - 1].metadata.title
+	} : null;
+	next = idx + 1 < posts.length ? {
+		slug: posts[idx + 1].slug,
+		title: posts[idx + 1].metadata.title
+	} : null;
+
+	return {
+		prev,
+		next
+	};
+}
+
 export function getPost(slug) {
 	const file = `posts/${slug}.md`;
 	if (!fs.existsSync(file)) return null;
@@ -28,7 +46,6 @@ export function getPost(slug) {
 	}
 
 	const html = marked(content);
-
 	return {
 		slug,
 		metadata,
