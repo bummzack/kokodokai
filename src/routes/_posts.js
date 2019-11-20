@@ -23,6 +23,10 @@ export function getPost(slug) {
 	const date = new Date(`${metadata.pubdate} EDT`); // cheeky hack
 	metadata.dateString = date.toDateString();
 
+	if (metadata.image && metadata.image.match(/^\/static/)) {
+		metadata.image = metadata.image.replace(/^\/static/, '');
+	}
+
 	const html = marked(content);
 
 	return {
