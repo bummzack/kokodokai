@@ -6,6 +6,8 @@ import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import config from 'sapper/config/rollup.js';
 import pkg from './package.json';
+import autoPreprocess from 'svelte-preprocess';
+import ignoreImport from 'rollup-plugin-ignore-import';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
@@ -13,6 +15,15 @@ const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 
 const onwarn = (warning, onwarn) => (warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) || onwarn(warning);
 const dedupe = importee => importee === 'svelte' || importee.startsWith('svelte/');
+
+const preprocess = autoPreprocess({
+	scss: {
+		includePaths: ['src'],
+	},
+	postcss: {
+		plugins: [require('autoprefixer')],
+	},
+});
 
 export default {
 	client: {
@@ -23,7 +34,12 @@ export default {
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode)
 			}),
+			ignoreImport({
+				// Ignore all .scss and .css file imports while building the bundle
+				extensions: ['.scss'],
+			}),
 			svelte({
+				preprocess,
 				dev,
 				hydratable: true,
 				emitCss: true
@@ -63,13 +79,18 @@ export default {
 		input: config.server.input(),
 		output: config.server.output(),
 		plugins: [
+			ignoreImport({
+				// Ignore all .scss and .css file imports while building the bundle
+				extensions: ['.scss'],
+			}),
 			replace({
 				'process.browser': false,
 				'process.env.NODE_ENV': JSON.stringify(mode)
 			}),
 			svelte({
 				generate: 'ssr',
-				dev
+				dev,
+				preprocess
 			}),
 			resolve({
 				dedupe
